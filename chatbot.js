@@ -5,7 +5,7 @@ import OpenAI from 'openai';
 const app = express();
 app.use(express.json());
 
-const OPENAI_API_KEY = "sk-abcdef1234567890abcdef1234567890abcdef12";
+const OPENAI_API_KEY = "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";
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
