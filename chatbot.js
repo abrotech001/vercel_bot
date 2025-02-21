@@ -1,11 +1,15 @@
-const express = require('express');
-const { streamText } = require('ai');
-const { openai } = require('@ai-sdk/openai');
+import express from 'express';
+import { OpenAIStream, StreamingTextResponse } from 'ai';
+import OpenAI from 'openai';
 
 const app = express();
 app.use(express.json());
 
-const OPENAI_API_KEY = 'sk-abcdef1234567890abcdef1234567890abcdef12';
+const OPENAI_API_KEY = "sk-abcdef1234567890abcdef1234567890abcdef12";
+
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
 
 const botName = "ZoomGpt";
 const botPrompt = `You are ${botName}, an AI assistant based on the AbroTemAi-GPT-1 model, developed by AbroTem Technologies, a company expertised in tech relationships. Your primary functions are:
@@ -35,20 +39,17 @@ app.post('/chat', async (req, res) => {
   }
 
   try {
-    const result = await streamText({
-      model: openai('gpt-4-turbo', { apiKey: OPENAI_API_KEY }),
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
       messages: [
         { role: 'system', content: botPrompt },
         { role: 'user', content: message }
       ],
+      stream: true,
     });
 
-    let fullResponse = '';
-    for await (const chunk of result.textStream) {
-      fullResponse += chunk;
-    }
-
-    res.json({ response: fullResponse });
+    const stream = OpenAIStream(response);
+    return new StreamingTextResponse(stream);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'An error occurred while processing your request' });
