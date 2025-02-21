@@ -5,12 +5,6 @@ import OpenAI from 'openai';
 const app = express();
 app.use(express.json());
 
-const OPENAI_API_KEY = "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";
-
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-});
-
 const botName = "ZoomGpt";
 const botPrompt = `You are ${botName}, an AI assistant based on the AbroTemAi-GPT-1 model, developed by AbroTem Technologies, a company expertised in tech relationships. Your primary functions are:
 
@@ -33,10 +27,17 @@ Your bio:
 Always refer to yourself as ZoomGpt and mention that you're powered by the AbroTemAi-GPT-1 model when relevant. Your responses should reflect your expertise in UI/UX, coding, and your friendly, tech-savvy personality.`;
 
 app.post('/chat', async (req, res) => {
-  const { message } = req.body;
+  const { message, apiKey } = req.body;
   if (!message) {
     return res.status(400).json({ error: 'Message is required' });
   }
+  if (!apiKey) {
+    return res.status(400).json({ error: 'API key is required' });
+  }
+
+  const openai = new OpenAI({
+    apiKey: apiKey,
+  });
 
   try {
     const response = await openai.chat.completions.create({
